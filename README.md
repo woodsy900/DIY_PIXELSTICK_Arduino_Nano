@@ -1,5 +1,5 @@
 # DIY_PIXELSTICK_Arduino_Nano
-This is my take on the DIY PIXEL Stick but attempting to use it with an Arduino Nano and OLED. 
+This is my take on the DIY PIXEL Stick but attempting to use it with an Arduino Nano and OLED. At present it does not fit on the Nano as it is about 14% over memory. I guess we should be calling this "My brazen attempt at using a Nano for a Mega task."
 
 The original inspiration comes from Michael Ross at http://mrossphoto.com/digital-light-wand/ and;
 Spicy Turtles instructable found here https://www.instructables.com/id/Arduino-Pixel-Stick/
