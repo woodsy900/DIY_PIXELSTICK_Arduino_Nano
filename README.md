@@ -17,4 +17,7 @@ My project consists of the following;
 
 I will continue to add more materials as I go such as the rigid materials to hold all the bits together but for now its a test bench item.
 
+**INFORMATION**
+SD Card has to be able to be formatted in FAT. I just changed SD card to a 2GB one and it now loads in a loop from ADFRUIT Logo to Scanning files
+**END INFORMATION**
 
