@@ -1,17 +1,18 @@
+// SD - Version: 1.2.2
+#include <SD.h>
+
+// Adafruit SSD1306 - Version: 1.1.2
+#include <Adafruit_SSD1306.h>
+
 // Adafruit NeoPixel - Version: 1.1.6
 #include <Adafruit_NeoPixel.h>
 
-// Adafruit_SSD1306-1.1.2 - Version: Latest 
-#include <Adafruit_SSD1306.h>
-
-// SD - Version: Latest 
-#include <SD.h>
 
 
   
 // Pin assignments for the Arduino (Make changes to these if you use different Pins)
-#define SDssPin 53                        // SD card CS pin
-byte NPPin = 31;                           // Data Pin for the NeoPixel LED Strip
+#define SDssPin 7                        // SD card CS pin
+byte NPPin = 8;                           // Data Pin for the NeoPixel LED Strip
 byte AuxButton = 44;                       // Aux Select Button Pin
 byte AuxButtonGND = 45;                    // Aux Select Button Ground Pin
 byte g = 0;                                // Variable for the Green Value
@@ -22,7 +23,7 @@ byte r = 0;                                // Variable for the Red Value
 #define STRIP_LENGTH 144                  // Set the number of LEDs the LED Strip
 byte frameDelay = 15;                      // default for the frame delay 
 int frameBlankDelay = 0;                  // Default Frame blank delay of 0
-byte menuItem = 1;                         // Variable for current main menu selection
+char menuItem = 1;                         // Variable for current main menu selection
 byte initDelay = 0;                        // Variable for delay between button press and start of light sequence
 byte repeat = 0;                           // Variable to select auto repeat (until select button is pressed again)
 int repeatDelay = 0;                      // Variable for delay between repeats
@@ -70,7 +71,8 @@ static const unsigned char PROGMEM logo16_glcd_bmp[] =
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(STRIP_LENGTH, NPPin, NEO_GRB + NEO_KHZ800);
 
 // Variable assignments for the Keypad
-int adc_key_val[5] ={ 0, 331, 509, 145, 744 };  
+PROGMEM const unsigned int adc_key_val[5] = { 0, 331,509, 145,744 };
+  
 byte NUM_KEYS = 5;
 int adc_key_in;
 char key=-1;
@@ -87,6 +89,8 @@ long buffer[STRIP_LENGTH];
 
 #define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
 
+void SerialEventRun() {}
+
 // Setup loop to get everything ready.  This is only run once at power on or reset
 void setup() {
   
@@ -94,13 +98,13 @@ void setup() {
   digitalWrite(AuxButton,HIGH);
   pinMode(AuxButtonGND, OUTPUT);
   digitalWrite(AuxButtonGND,LOW);
-
   setupLEDs();
-  setupSDcard();
   setupOLED();
+  setupSDcard();
+  
   byte i;
   for (i = 0; i < m_NumberOfFiles; i++) {     // Loop through all of the files that have been identified on the memory card
-    if(m_FileNames[i] == "STARTUP.BMP"){      // Look for a default file to show on initial bootup This file name could be changed to "STARTUP.BMP"
+    if(m_FileNames[i] == "startup.BMP"){      // Look for a default file to show on initial bootup This file name could be changed to "STARTUP.BMP"
       SendFile(m_FileNames[i]);               // if the startup BMP was found, send it to the LED's
       ClearStrip(0);                          // Clear the strip
       break;                                  // Exit for loop, we found our default file
@@ -114,49 +118,89 @@ void setup() {
 void loop() {
   switch (menuItem) {
     case 1:
-      display.begin(16,2);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0, 0);
       display.println( F("1:File Select   "));
-      display.setCursor(0, 1);
+      display.setCursor(0, 8);
       display.println(m_CurrentFilename);
+      display.display();
       break;    
     case 2:
-      display.begin(16,2);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
       display.println( F("2:Brightness    "));
-      display.setCursor(0, 1);
+      display.setCursor(0, 8);
       display.println(brightness);
       if (brightness == 100) {
-        display.setCursor(3, 1);
+        display.setCursor(16, 8);
       }
       else {
-        display.setCursor(2, 1);
+        display.setCursor(16, 8);
       }
        display.println( F("%"));
+       display.display();
       break;    
     case 3:
-      display.begin(16,2);
+      //display.begin(0,1);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
       display.println( F("3:Init Delay    "));
-      display.setCursor(0, 1);
-      display.println(initDelay);    
+      display.setCursor(0, 8);
+      display.println(initDelay);
+      display.display();
       break;    
     case 4:
-      display.begin(16,2);
+      //display.begin(0,1);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
       display.println( F("4:Frame Delay   "));
-      display.setCursor(0, 1);
-      display.println(frameDelay);    
+      display.setCursor(0, 8);
+      display.println(frameDelay);
+      display.display();
       break;    
     case 5:
-      display.begin(16,2);
+      //display.begin(0,1);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
       display.println( F("5:Repeat Times  "));
-      display.setCursor(0, 1);
-      display.println(repeatTimes);    
+      display.setCursor(0, 8);
+      display.println(repeatTimes);
+      display.display();
       break;    
     case 6:
-      display.begin(16,2);
+      //display.begin(0,1);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
       display.println( F("6:Repeat Delay  "));
-      display.setCursor(0, 1);
-      display.println(repeatDelay);    
-      break;    
+      display.setCursor(0, 8);
+      display.println(repeatDelay);
+      display.display();
+      break;
 
+    case 7:
+      //delay(50);
+      display.begin(0,1);
+      display.clearDisplay();
+      display.setTextSize(1);
+      display.setTextColor(WHITE);
+      display.setCursor(0,0);
+      display.println("");
+      display.setCursor(0, 8);
+      display.println(repeatTimes);
+      display.display();
+    break;    
   }
   
   int keypress = ReadKeypad();
@@ -175,7 +219,7 @@ void loop() {
     }
     ClearStrip(0);
   }
-  if (keypress == 0) {                    // The Right Key was Pressed
+  if (keypress == 1) {                    // The Right Key was Pressed
     switch (menuItem) { 
       case 1:                             // Select the Next File
          
@@ -212,7 +256,7 @@ void loop() {
     }
   }
 
-  if (keypress == 3) {                    // The Left Key was Pressed
+  if (keypress == 0) {                    // The Left Key was Pressed
     switch (menuItem) {                   // Select the Previous File
       case 1:
          
@@ -259,22 +303,44 @@ void loop() {
   }
 
 
-  if (( keypress == 1)) {                 // The up key was pressed
-    if (menuItem == 1) {
-      menuItem = 6;  
+  if ( keypress == 3) 
+  {                 // The up key was pressed
+    if (menuItem == 1) 
+    {
+      menuItem = 6;                       // changed from == 6 to == 5 commented out case:6
     }
-    else {
+    else 
+    {
       menuItem -= 1;
     }
   }
-  if (( keypress == 2)) {                 // The down key was pressed
-    if (menuItem == 6) {
+  if (( keypress == 2))  // The down key was pressed
+  {                 
+    if (menuItem == 6) 
+    {                  // changed from == 6 to == 5 commented out case:6
       menuItem = 1;  
-    }
-    else {
+    } else 
+    {
       menuItem += 1;
     }
+  } 
+  /*if ( keypress == 2 && menuItem != 7) 
+  {                 // The down key was pressed
+      menuItem += 1;
+  } 
+  else  if( menuItem > 6)
+  {  //keypress == 2 &&
+    menuItem = 1;
   }
+  /*if (( keypress == 2) && menuItem == 7) {                 // The down key was pressed
+    menuItem == 1;
+  }
+  else {
+      
+    menuItem += 1;
+     
+    }*/
+  
 }
 
 void setupLEDs() {
@@ -283,13 +349,12 @@ void setupLEDs() {
 }
 
 void setupOLED(){
-  Serial.begin(9600);
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
   // init done
   display.display();     // show splashscreen
-  delay(2000);
+  delay(1000);
   display.clearDisplay(); // Make sure the display is cleared
 
 }
@@ -298,22 +363,37 @@ void setupSDcard() {
   pinMode(SDssPin, OUTPUT);
  
   while (!SD.begin(SDssPin)) {
-    display.println( F("SD init failed!"));
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(0,0);
+    display.println("SD init failed!");
+    display.display();
     delay(1000);
     display.clearDisplay();
     delay(500);
   }
   display.clearDisplay();
-  display.println( F("SD init done."));
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.print("SD init done.");
+  display.display();
   delay(1000);
   root = SD.open("/");
   display.clearDisplay();
-   display.println( F("Scanning files"));
-  delay(500);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.print("Scanning files");
+  //display.display();
+  //delay(500);
+  //display.clearDisplay();
   GetFileNamesFromSD(root);
   isort(m_FileNames, m_NumberOfFiles);
   m_CurrentFilename = m_FileNames[0];
   DisplayCurrentFilename();
+  display.display();
+  
 }
      
 
@@ -385,10 +465,12 @@ void SendFile(String Filename) {
 
 void DisplayCurrentFilename() {
   m_CurrentFilename = m_FileNames[m_FileIndex];
-  display.setCursor(0, 1);
-   display.println( F("                "));
-  display.setCursor(0, 1);
-   display.println(m_CurrentFilename);
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 8);
+  display.println( F("                "));
+  display.setCursor(0, 16);
+  display.println(m_CurrentFilename);
 }
 
 
